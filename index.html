@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuis Pertemuan ke-6 – Teknologi Bluetooth dan Android</title>
+<style>
+:root{
+  --navy:#0b2a5b; --navy2:#143d85; --blue:#1e6fd9; --light:#eef3fb; --line:#d6deec;
+  --ink:#1c2433; --mut:#5b6478; --ok:#1b8a4b; --okbg:#e6f6ec; --bad:#c62f2f; --badbg:#fdeaea;
+  --gold:#f2a900; --card:#ffffff; --bg:#f4f7fc;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+header.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:22px 16px;text-align:center;border-bottom:4px solid var(--gold)}
+header.top .univ{font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+header.top h1{margin:6px 0 4px;font-size:1.55rem}
+header.top p{margin:0;opacity:.9;font-size:.95rem}
+main{max-width:860px;margin:0 auto;padding:20px 14px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(11,42,91,.06);margin-bottom:18px}
+h2{color:var(--navy);margin:0 0 12px;font-size:1.25rem}
+.info{background:var(--light);border-left:4px solid var(--blue);padding:12px 14px;border-radius:8px;font-size:.93rem;margin:14px 0}
+.info ul{margin:6px 0 0 18px;padding:0}
+label{display:block;font-weight:600;margin:14px 0 5px;color:var(--navy)}
+input,select{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:9px;font-size:1rem;font-family:inherit;background:#fff}
+input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(30,111,217,.15)}
+.err{color:var(--bad);font-size:.9rem;margin-top:10px;min-height:1.2em}
+button{font-family:inherit;cursor:pointer}
+.btn{background:var(--navy);color:#fff;border:0;padding:12px 22px;border-radius:10px;font-size:1rem;font-weight:600;transition:.15s}
+.btn:hover{background:var(--navy2)}
+.btn.sec{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
+.btn.sec:hover{background:var(--light)}
+.btn.go{background:var(--ok)}
+.btn.go:hover{background:#15703c}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hidden{display:none!important}
+
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:.92rem;color:var(--mut)}
+.who b{color:var(--navy)}
+.bar{height:9px;background:#e3e9f5;border-radius:9px;overflow:hidden;margin:10px 0 16px}
+.bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--navy2));transition:width .25s}
+.qnum{display:inline-block;background:var(--navy);color:#fff;border-radius:20px;padding:2px 12px;font-size:.85rem;font-weight:600;margin-bottom:8px}
+.qtext{font-size:1.1rem;font-weight:600;margin:4px 0 14px}
+.opt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:12px 14px;margin-bottom:10px;font-size:1rem;color:var(--ink);transition:.12s}
+.opt:hover{border-color:var(--blue);background:var(--light)}
+.opt .k{flex:0 0 28px;height:28px;border-radius:50%;background:var(--light);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.88rem}
+.opt.sel{border-color:var(--blue);background:#e6f0ff}
+.opt.sel .k{background:var(--blue);color:#fff}
+.nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:14px}
+.grid button{padding:7px 0;border:1.5px solid var(--line);background:#fff;border-radius:7px;font-weight:600;color:var(--mut);font-size:.85rem}
+.grid button.done{background:#dbe9ff;border-color:var(--blue);color:var(--navy)}
+.grid button.cur{outline:3px solid var(--gold)}
+@media(max-width:560px){.grid{grid-template-columns:repeat(6,1fr)}}
+
+/* result */
+.banner{background:#fff6dd;border:1px solid #f0d58a;color:#7a5600;padding:10px 14px;border-radius:9px;margin-bottom:14px;font-size:.92rem}
+.score-wrap{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.ring{width:140px;height:140px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,var(--navy),var(--blue));flex:0 0 140px}
+.ring b{font-size:2.5rem;line-height:1}
+.ring span{font-size:.8rem;opacity:.9}
+table.id{border-collapse:collapse;font-size:.97rem}
+table.id td{padding:3px 12px 3px 0;vertical-align:top}
+table.id td:first-child{color:var(--mut);white-space:nowrap}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.stat{padding:6px 14px;border-radius:20px;font-weight:600;font-size:.9rem}
+.s-ok{background:var(--okbg);color:var(--ok)} .s-bad{background:var(--badbg);color:var(--bad)} .s-nil{background:#eceff5;color:var(--mut)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.rv{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px;background:#fff;break-inside:avoid;page-break-inside:avoid}
+.rv.ok{border-left:6px solid var(--ok)} .rv.bad{border-left:6px solid var(--bad)} .rv.nil{border-left:6px solid #9aa3b5}
+.rv .t{font-weight:600;margin-bottom:8px}
+.rv .a{font-size:.95rem;margin:3px 0;padding:6px 10px;border-radius:7px}
+.rv .a.right{background:var(--okbg);color:#0f5f33}
+.rv .a.wrong{background:var(--badbg);color:#8f1f1f}
+.rv .a.plain{color:var(--mut)}
+.rv .exp{margin-top:9px;background:var(--light);border-radius:8px;padding:9px 12px;font-size:.93rem}
+.rv .exp b{color:var(--navy)}
+footer{text-align:center;color:var(--mut);font-size:.82rem;margin-top:10px}
+
+@media print{
+  @page{size:A4;margin:14mm}
+  body{background:#fff}
+  header.top{padding:10px;border-bottom:3px solid var(--gold)}
+  header.top h1{font-size:1.2rem}
+  .noprint,#intro,#quiz,footer{display:none!important}
+  main{padding:0;max-width:none}
+  .card{box-shadow:none;border:1px solid #bbb;padding:14px}
+  .rv{margin-bottom:8px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="univ">Universitas Bina Sarana Informatika</div>
+  <h1>Kuis Teknologi Bluetooth dan Android</h1>
+  <p>Kontrol dan Akuisisi Data – Pertemuan ke-6</p>
+</header>
+
+<main>
+
+<!-- ===== INTRO / IDENTITAS ===== -->
+<section id="intro" class="card">
+  <h2>Identitas Mahasiswa</h2>
+  <div class="info">
+    <b>Petunjuk:</b>
+    <ul>
+      <li>Kuis terdiri dari <b>30 soal pilihan ganda</b> (4 opsi, 1 jawaban benar).</li>
+      <li>Setiap soal bernilai sama; nilai akhir = (jumlah benar ÷ 30) × 100.</li>
+      <li>Kuis hanya dapat dikerjakan <b>satu kali</b> per NIM. Jika halaman tertutup, kerjakan kembali dengan NIM yang sama untuk melanjutkan.</li>
+      <li>Setelah selesai, pembahasan tiap soal tampil dan hasil dapat disimpan ke <b>PDF</b>.</li>
+    </ul>
+  </div>
+  <label for="nama">Nama Lengkap</label>
+  <input id="nama" type="text" autocomplete="name" placeholder="Contoh: Budi Santoso">
+  <label for="nim">NIM</label>
+  <input id="nim" type="text" inputmode="numeric" autocomplete="off" placeholder="Contoh: 12345678">
+  <label for="prodi">Program Studi</label>
+  <input id="prodi" list="prodiList" type="text" placeholder="Pilih atau ketik program studi">
+  <datalist id="prodiList">
+    <option value="Teknologi Komputer">
+    <option value="Teknik Informatika">
+    <option value="Sistem Informasi">
+    <option value="Sistem Informasi Akuntansi">
+    <option value="Teknik Industri">
+    <option value="Teknik Elektro">
+    <option value="Manajemen Informatika">
+    <option value="Komputerisasi Akuntansi">
+  </datalist>
+  <div id="introErr" class="err"></div>
+  <button class="btn" id="btnStart">Mulai Kuis →</button>
+</section>
+
+<!-- ===== KUIS ===== -->
+<section id="quiz" class="card hidden">
+  <div class="qhead">
+    <div class="who"><b id="qWho"></b></div>
+    <div>Terjawab: <b id="qDone">0</b>/30</div>
+  </div>
+  <div class="bar"><i id="qBar"></i></div>
+  <span class="qnum" id="qNum"></span>
+  <div class="qtext" id="qText"></div>
+  <div id="qOpts"></div>
+  <div class="nav">
+    <button class="btn sec" id="btnPrev">← Sebelumnya</button>
+    <button class="btn" id="btnNext">Berikutnya →</button>
+    <button class="btn go hidden" id="btnSubmit">Selesai &amp; Lihat Nilai ✔</button>
+  </div>
+  <div class="grid" id="qGrid"></div>
+  <div style="margin-top:14px;text-align:right">
+    <button class="btn go" id="btnFinishEarly" style="padding:9px 16px;font-size:.92rem">Kumpulkan Jawaban</button>
+  </div>
+</section>
+
+<!-- ===== HASIL ===== -->
+<section id="result" class="hidden">
+  <div class="card">
+    <div id="resBanner" class="banner hidden noprint"></div>
+    <h2>Hasil Kuis</h2>
+    <div class="score-wrap">
+      <div class="ring"><b id="rScore">0</b><span>dari 100</span></div>
+      <div>
+        <table class="id">
+          <tr><td>Nama</td><td>: <b id="rNama"></b></td></tr>
+          <tr><td>NIM</td><td>: <b id="rNim"></b></td></tr>
+          <tr><td>Program Studi</td><td>: <b id="rProdi"></b></td></tr>
+          <tr><td>Mata Kuliah</td><td>: Kontrol dan Akuisisi Data – Pertemuan ke-6</td></tr>
+          <tr><td>Waktu Selesai</td><td>: <span id="rWaktu"></span></td></tr>
+          <tr><td>Predikat</td><td>: <b id="rPred"></b></td></tr>
+        </table>
+        <div class="stats">
+          <span class="stat s-ok" id="rBenar"></span>
+          <span class="stat s-bad" id="rSalah"></span>
+          <span class="stat s-nil" id="rKosong"></span>
+        </div>
+      </div>
+    </div>
+    <div class="actions noprint">
+      <button class="btn" id="btnPdf">📄 Simpan ke PDF</button>
+      <span style="align-self:center;color:var(--mut);font-size:.85rem">Pada jendela cetak, pilih tujuan “Simpan sebagai PDF”.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Pembahasan Soal</h2>
+    <div id="review"></div>
+  </div>
+</section>
+
+<footer>Kuis ini dapat dikerjakan secara offline • Universitas Bina Sarana Informatika</footer>
+</main>
+
+<script>
+/* ================= BANK SOAL =================
+   o[0] = jawaban benar. Urutan opsi diacak otomatis saat kuis dimulai. */
+const QS = [
+{q:"Nama “Bluetooth” diambil dari nama tokoh sejarah siapa?",
+ o:["Raja Harald Bluetooth (Harald Gormsson), penguasa Denmark abad ke-10","Leif Erikson, penjelajah Viking dari Islandia","Raja Olaf Tryggvason, penguasa Norwegia","Raja Canute Agung, penguasa Inggris"],
+ e:"Bluetooth dinamai dari Raja Harald Bluetooth (Harald Gormsson), penguasa Denmark abad ke-10 yang dikenal karena berhasil menyatukan Denmark dan Norwegia."},
+{q:"Mengapa nama Harald Bluetooth dipilih sebagai simbol teknologi nirkabel ini?",
+ o:["Karena ia menyatukan wilayah, sejalan dengan tujuan Bluetooth menyatukan berbagai perangkat dan produsen agar dapat saling berkomunikasi","Karena ia menciptakan sistem komunikasi nirkabel pertama pada abad ke-10","Karena ia mendirikan Bluetooth SIG pada tahun 1998","Karena ia berasal dari negara tempat kabel pertama kali dibuat"],
+ e:"Nama ini dipilih sebagai simbol penyatuan: Bluetooth bertujuan menyatukan perangkat komputer, telekomunikasi, dan berbagai produsen agar dapat saling berkomunikasi."},
+{q:"Logo Bluetooth merupakan gabungan dari…",
+ o:["Dua rune Nordik inisial Harald Bluetooth, yaitu ᚼ (H) dan ᛒ (B)","Huruf Latin B dan T dari kata “Blue” dan “Tooth”","Huruf Yunani Beta dan Theta","Simbol gigi berwarna biru yang distilisasi"],
+ e:"Logo Bluetooth menggabungkan dua rune Nordik dari inisial Harald Bluetooth, yaitu ᚼ (Hagall, H) dan ᛒ (Berkanan, B)."},
+{q:"Siapa yang mengusulkan nama “Bluetooth” pada tahun 1996?",
+ o:["Jim Kardach dari Intel","Tim peneliti Ericsson yang memulai riset pada 1994","Perwakilan Nokia dalam Bluetooth SIG","Insinyur Toshiba yang menerbitkan Spesifikasi 1.0"],
+ e:"Pada 1996 Jim Kardach dari Intel mengusulkan nama “Bluetooth”. Ericsson memulai penelitian teknologi nirkabel jarak pendek pada 1994 untuk menggantikan kabel; Bluetooth SIG dibentuk 1998 dan Spesifikasi 1.0 terbit Juli 1999."},
+{q:"Pada tahun 2010 diperkenalkan Bluetooth 4.0 (BLE). Apa tujuan utamanya?",
+ o:["Mendukung perangkat hemat energi seperti sensor dan wearable","Meningkatkan kecepatan transfer data dengan Enhanced Data Rate","Menggantikan Wi-Fi sebagai jaringan internet","Memperluas jangkauan hingga puluhan kilometer"],
+ e:"Bluetooth Low Energy (BLE) diperkenalkan pada Bluetooth 4.0 (2010) untuk perangkat hemat energi seperti sensor dan wearable. Peningkatan kecepatan lewat EDR terjadi pada Bluetooth 2.0 (2004)."},
+{q:"Dalam sistem kontrol berbasis Android–Bluetooth, pembagian peran yang benar adalah…",
+ o:["Android sebagai “otak & visualisasi” (UI, pemrosesan data, OS); Bluetooth sebagai “kabel tak kasat mata” jarak dekat menuju perangkat fisik","Android sebagai jalur komunikasi nirkabel; Bluetooth sebagai antarmuka pengguna","Android dan Bluetooth sama-sama bergantung pada jaringan internet dan Wi-Fi eksternal","Android hanya sebagai catu daya bagi modul Bluetooth"],
+ e:"Android menyediakan antarmuka pengguna, kemampuan pemrosesan data, dan sistem operasi; Bluetooth menjadi jalur nirkabel jarak dekat ke perangkat fisik. Komunikasi ini “Bukan Internet”: terjadi lokal sehingga dapat mengendalikan lampu atau membaca suhu ruangan tanpa jaringan Wi-Fi eksternal."},
+{q:"Bluetooth bekerja pada pita frekuensi…",
+ o:["2,4 GHz, pita unlicensed ISM (Industrial, Scientific and Medical)","900 MHz berlisensi khusus operator seluler","5 GHz berlisensi khusus penerbangan","433 MHz khusus radio amatir"],
+ e:"Bluetooth adalah teknologi radio jarak dekat berbiaya rendah yang menggunakan pita frekuensi 2,4 GHz unlicensed ISM, dirancang untuk menggantikan kabel keras (hard-wired)."},
+{q:"Jangkauan umum Bluetooth sekitar 10 meter. Faktor apa saja yang memengaruhinya?",
+ o:["Kelas daya radio, antena, dan penghalang fisik","Merek smartphone dan versi aplikasi","Kecepatan internet dan paket data operator","Jumlah aplikasi yang terpasang di Android"],
+ e:"Jangkauan ~10 meter bersifat umum dan bergantung pada kelas daya radio, antena, serta penghalang fisik di sekitar perangkat."},
+{q:"Apa yang dimaksud dengan TDD (Time-Division Duplex) pada komunikasi Bluetooth?",
+ o:["Arah komunikasi bergantian dengan membagi waktu dalam satuan slot (umumnya 625 µs per slot)","Pengiriman dan penerimaan di dua frekuensi berbeda secara terus-menerus","Penyebaran sinyal menggunakan kode chip sequence","Pembagian jaringan berdasarkan alamat IP perangkat"],
+ e:"TDD membuat arah komunikasi bergantian (kirim–terima) dengan membagi waktu ke dalam slot, umumnya 625 µs per slot."},
+{q:"Urutan tiga komponen perangkat keras utama Bluetooth dari lapisan paling bawah ke atas adalah…",
+ o:["Radio Transceiver → Baseband Link Controller → Link Manager","Link Manager → Baseband Link Controller → Radio Transceiver","Baseband Link Controller → Radio Transceiver → Link Manager","Radio Transceiver → Link Manager → Baseband Link Controller"],
+ e:"Urutan dari bawah: (1) Radio Transceiver, (2) Baseband Link Controller, (3) Link Manager. Saat mengirim, data digital dari aplikasi mengalir turun: Link Manager → Baseband → Radio Transceiver → udara."},
+{q:"Komponen yang mengirim dan menerima sinyal radio 2,4 GHz serta mengubah data digital menjadi sinyal radio (dan sebaliknya) adalah…",
+ o:["Radio Transceiver","Link Manager","Baseband Link Controller","Service Discovery Protocol"],
+ e:"Radio Transceiver terdiri dari pemancar-penerima, konversi sinyal analog ↔ digital, dan antena RF. Ia bertugas mengirim/menerima sinyal radio 2,4 GHz."},
+{q:"Komponen yang mengatur komunikasi tingkat rendah, format paket data, sinkronisasi waktu, dan pengelolaan tautan radio adalah…",
+ o:["Baseband Link Controller","Radio Transceiver","Link Manager","Antena RF"],
+ e:"Itulah tugas Baseband Link Controller (lapisan ke-2): format paket data, sinkronisasi waktu, dan pengelolaan tautan radio."},
+{q:"Komponen yang menangani negosiasi koneksi, autentikasi, dan pengaturan daya/parameter adalah…",
+ o:["Link Manager","Radio Transceiver","Baseband Link Controller","Antena RF"],
+ e:"Link Manager (lapisan ke-3) mengelola hubungan komunikasi: negosiasi koneksi, autentikasi, dan pengaturan parameter/daya."},
+{q:"Fungsi SDP (Service Discovery Protocol) pada protocol stack Bluetooth adalah…",
+ o:["Mencari dan mendapatkan informasi layanan yang tersedia pada perangkat","Mengemulasikan komunikasi serial","Membagi jalur data dan multiplexing beberapa layanan","Mengirim dan menerima sinyal radio 2,4 GHz"],
+ e:"SDP dipakai untuk menemukan layanan apa saja yang tersedia pada perangkat lawan sebelum aplikasi memakainya."},
+{q:"RFCOMM dan ATT/GATT pada protocol stack Bluetooth masing-masing menyediakan…",
+ o:["Emulasi komunikasi serial (RFCOMM) dan akses atribut untuk BLE (ATT/GATT)","Akses atribut BLE (RFCOMM) dan emulasi serial (ATT/GATT)","Enkripsi data (RFCOMM) dan autentikasi perangkat (ATT/GATT)","Streaming audio (RFCOMM) dan transfer file (ATT/GATT)"],
+ e:"RFCOMM menyediakan emulasi komunikasi serial (dipakai Bluetooth Classic), sedangkan ATT/GATT menyediakan akses atribut untuk BLE."},
+{q:"Peran L2CAP (Logical Link Control and Adaptation Protocol) adalah…",
+ o:["Membagi dan mengatur jalur data, multiplexing beberapa layanan, serta adaptasi ukuran paket","Mencari informasi layanan pada perangkat","Mengonversi sinyal analog menjadi digital","Mengelola pairing dan autentikasi pengguna"],
+ e:"L2CAP (Multiplexing & Adaptation) membagi dan mengatur jalur data, memultipleks beberapa layanan, dan menyesuaikan ukuran paket."},
+{q:"Pada modul Bluetooth seperti ESP32 atau nRF52, lapisan-lapisan protocol stack tersebut…",
+ o:["Biasanya terintegrasi dalam satu chip","Harus dipasang sebagai chip terpisah untuk tiap lapisan","Hanya ada di sisi smartphone, bukan di modul","Dijalankan sepenuhnya oleh server cloud"],
+ e:"Semua lapisan (dari radio PHY hingga profil) biasanya terintegrasi dalam satu chip, misalnya ESP32 atau nRF52."},
+{q:"Dalam pengujian kualitas koneksi Bluetooth, aspek “Profil” diuji dengan cara…",
+ o:["Menguji kompatibilitas layanan antarperangkat","Mengukur kekuatan sinyal, daya pancar, dan sensitivitas","Memeriksa prosedur pertukaran pesan dan koneksi","Mengukur umur baterai perangkat"],
+ e:"Tiga aspek pengujian: RF/Radio Frequency (kekuatan sinyal, daya pancar, sensitivitas), Protokol (prosedur pertukaran pesan dan koneksi), dan Profil (kompatibilitas layanan antarperangkat)."},
+{q:"Makna ungkapan “Koneksi berhasil ≠ koneksi aman” adalah…",
+ o:["Koneksi yang berhasil terbentuk belum tentu aman; tetap perlu uji sinyal, kompatibilitas, dan keamanan (enkripsi serta autentikasi)","Koneksi hanya aman bila jaraknya kurang dari 10 meter","Koneksi otomatis aman setelah proses pairing selesai","Keamanan ditentukan semata-mata oleh kuat sinyal"],
+ e:"Berhasil terhubung tidak menjamin aman. Enkripsi menjaga kerahasiaan data, autentikasi memverifikasi perangkat, dan kontrol daya mengelola daya pancar."},
+{q:"Bluetooth memanfaatkan teknik spektrum tersebar FHSS. Pernyataan yang benar tentang FHSS dibanding DSSS adalah…",
+ o:["FHSS berpindah-pindah frekuensi secara konstan untuk menghindari interferensi, dengan konsumsi daya dan kompleksitas pemrosesan lebih rendah","FHSS menyebar sinyal sekaligus dengan chip sequence dan sering diasosiasikan dengan WLAN","FHSS umumnya membutuhkan daya pemrosesan lebih tinggi daripada DSSS","Bluetooth tidak memakai teknik spread spectrum sama sekali"],
+ e:"FHSS (Frequency Hopping Spread Spectrum): sinyal terus berpindah frekuensi, daya & kompleksitas lebih ringan — dipakai Bluetooth di pita 2,4 GHz. DSSS menyebar sinyal dengan chip sequence, sering dikaitkan dengan WLAN, dan umumnya butuh daya pemrosesan lebih tinggi."},
+{q:"Dalam model sandbox keamanan Android, mengapa aplikasi tidak dapat menyalakan radio Bluetooth begitu saja?",
+ o:["Karena tiap aplikasi diisolasi dan OS harus memberikan izin akses secara proaktif (Grant Permission)","Karena Bluetooth hanya bisa dinyalakan lewat pengaturan pabrik","Karena Android tidak mendukung Bluetooth pada aplikasi pihak ketiga","Karena radio Bluetooth berada di dalam memori internal aplikasi"],
+ e:"Android berbasis Linux multi-pengguna; setiap aplikasi diisolasi agar tidak mencuri data aplikasi lain tanpa izin eksplisit. Aplikasi tidak bisa menyalakan radio Bluetooth tanpa OS memberikan kunci akses (Grant Permission)."},
+{q:"Dari enam komponen inti aplikasi Bluetooth, komponen yang mengubah aliran byte mentah menjadi nilai string/angka adalah…",
+ o:["Data Parser","Device Discovery","Permission Manager","Error Handling"],
+ e:"Enam komponen: (1) UI, (2) Permission Manager, (3) Device Discovery, (4) Connection Manager, (5) Data Parser, (6) Error Handling. Data Parser mengubah byte mentah menjadi string/angka yang bisa ditampilkan."},
+{q:"Komponen aplikasi yang bertugas melakukan proses pairing dan membuka soket koneksi adalah…",
+ o:["Connection Manager","Device Discovery","Permission Manager","User Interface"],
+ e:"Connection Manager menangani pairing dan pembukaan soket koneksi. Device Discovery hanya memindai dan menemukan perangkat di sekitar; Permission Manager meminta hak akses Bluetooth & lokasi."},
+{q:"Aplikasi yang melakukan streaming audio real-time dan transfer data besar berkelanjutan sebaiknya memakai…",
+ o:["Bluetooth Classic (point-to-point, profil RFCOMM/A2DP)","BLE berbasis GATT (point-to-multipoint)","BLE karena hemat energi ekstrem","Hanya Wi-Fi, karena Bluetooth tidak mendukung data kontinu"],
+ e:"Bluetooth Classic ideal untuk aliran data besar berkelanjutan, berkomunikasi point-to-point dengan profil utama RFCOMM/A2DP (contoh: audio, transfer file besar)."},
+{q:"Sensor suhu yang mengirim data kecil secara berkala dan harus hemat baterai paling tepat memakai…",
+ o:["BLE (Low Energy) berbasis GATT","Bluetooth Classic dengan profil A2DP","Bluetooth Classic dengan koneksi RFCOMM terus-menerus","Kabel serial USB"],
+ e:"BLE ideal untuk pengiriman data kecil berkala dengan mode hemat energi ekstrem, berarsitektur GATT (point-to-multipoint) — contoh: sensor suhu, beacon, perangkat IoT."},
+{q:"Pada flowchart pembacaan suhu dari sensor nirkabel, langkah yang dilakukan tepat setelah proses pairing adalah…",
+ o:["Membuka soket RFCOMM (status CONNECTED)","Menjalankan Device Discovery dan menemukan target","Mengeksekusi Data Parser","Menampilkan suhu di layar UI"],
+ e:"Alurnya: Mulai → Cek izin OS (jika ditolak: tampilkan error) → Discovery & temukan target → Pairing → Buka soket RFCOMM (CONNECTED) → Terima byte stream → Data Parser → Tampilkan suhu di UI."},
+{q:"Aplikasi menerima string “TEMP:28.6” dari sensor. Setelah dijalankan Data Parser, apa yang ditampilkan di layar?",
+ o:["Nilai 28.6 ditampilkan sebagai suhu 28.6°C","String “TEMP:28.6” ditampilkan apa adanya","Hanya angka 28 tanpa desimal","Pesan error karena data mengandung huruf"],
+ e:"Parser membuang label “TEMP:” dan mengambil nilai numerik 28.6, sehingga UI dapat menampilkan “Suhu 28.6°C”."},
+{q:"Pada level koneksi (pairing), praktik keamanan yang dianjurkan untuk perangkat kritis adalah…",
+ o:["Menghindari PIN statis yang mudah ditebak seperti 1234 atau 0000","Memakai PIN 0000 agar mudah diingat pengguna","Menonaktifkan autentikasi agar pairing lebih cepat","Menggunakan nama perangkat sebagai PIN"],
+ e:"Checklist level koneksi: hindari PIN statis (1234/0000) yang mudah diretas. Level OS: minta izin saat fitur Bluetooth diklik, bukan saat aplikasi pertama dibuka."},
+{q:"Pada level data, mengapa aplikasi harus selalu memvalidasi format, panjang string, dan rentang nilai pesan masuk?",
+ o:["Untuk mencegah injeksi perintah memori dan data tak valid yang dapat merusak aplikasi","Agar jangkauan Bluetooth melebihi 10 meter","Agar aplikasi tidak memerlukan permission","Agar pairing tidak perlu dilakukan"],
+ e:"Validasi (format, panjang string, rentang nilai) mencegah injeksi perintah memori. Level stabilitas (fallback): aplikasi harus menangani dengan baik — tidak Force Close — saat perangkat tiba-tiba keluar dari jangkauan 10 meter."},
+{q:"Protokol Object Exchange (OBEX) pada Bluetooth digunakan di industri untuk…",
+ o:["Transfer file: bertukar dokumen dan vCard antarperangkat mobile","Streaming suara real-time dan kontrol media","Mengirim perintah serial “Maju/Berhenti” ke mikrokontroler","Mengirim kredensial Wi-Fi (SSID) ke perangkat pintar"],
+ e:"Implementasi nyata: audio sinkron (koneksi Classic), transfer file via OBEX (dokumen & vCard), konfigurasi IoT cerdas (kirim SSID Wi-Fi saat setup awal), dan kontrol mikrokontroler (string perintah serial & baca data sensor)."}
+];
+
+/* ================= UTIL ================= */
+const KEY = 'kad_p6_bt_android_';
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LET = ['A','B','C','D'];
+let S = null;          // state
+let memStore = {};     // cadangan bila localStorage diblokir
+
+function lsGet(k){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : (memStore[k]||null); }catch(e){ return memStore[k]||null; } }
+function lsSet(k,v){ memStore[k]=v; try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function persist(){ if(S) lsSet(KEY + S.nim, S); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function show(id){ ['intro','quiz','result'].forEach(x => $(x).classList.toggle('hidden', x!==id)); window.scrollTo({top:0,behavior:'smooth'}); }
+
+/* ================= MULAI ================= */
+$('btnStart').onclick = () => {
+  const nama = $('nama').value.trim().replace(/\s+/g,' ');
+  const nim = $('nim').value.trim().replace(/\s+/g,'');
+  const prodi = $('prodi').value.trim().replace(/\s+/g,' ');
+  const err = $('introErr');
+  if(nama.length < 3){ err.textContent = 'Nama lengkap wajib diisi (minimal 3 karakter).'; return; }
+  if(!/^[A-Za-z0-9.\-]{5,20}$/.test(nim)){ err.textContent = 'NIM wajib diisi (5–20 karakter huruf/angka).'; return; }
+  if(prodi.length < 2){ err.textContent = 'Program studi wajib diisi.'; return; }
+  err.textContent = '';
+
+  const old = lsGet(KEY + nim);
+  if(old){
+    S = old;
+    if(S.done){ showResult(true); return; }
+    startQuiz(); return;     // lanjutkan yang belum selesai
+  }
+  S = {
+    nama, nim, prodi,
+    perm: QS.map(() => shuffle([0,1,2,3])),
+    ans: QS.map(() => -1),
+    idx: 0, done: false, mulai: Date.now()
+  };
+  persist();
+  startQuiz();
+};
+
+/* ================= KUIS ================= */
+function startQuiz(){
+  $('qWho').textContent = S.nama + ' • ' + S.nim;
+  show('quiz');
+  renderQ();
+}
+function answeredCount(){ return S.ans.filter(a => a >= 0).length; }
+
+function renderQ(){
+  const i = S.idx, q = QS[i], p = S.perm[i];
+  $('qNum').textContent = 'Soal ' + (i+1) + ' dari ' + QS.length;
+  $('qText').textContent = q.q;
+  $('qOpts').innerHTML = p.map((src, k) =>
+    `<button class="opt ${S.ans[i]===k?'sel':''}" data-k="${k}">
+       <span class="k">${LET[k]}</span><span>${esc(q.o[src])}</span></button>`).join('');
+  document.querySelectorAll('#qOpts .opt').forEach(b => b.onclick = () => {
+    S.ans[i] = +b.dataset.k; persist(); renderQ();
+  });
+  const n = answeredCount();
+  $('qDone').textContent = n;
+  $('qBar').style.width = (n / QS.length * 100) + '%';
+  $('btnPrev').disabled = i === 0;
+  $('btnNext').classList.toggle('hidden', i === QS.length-1);
+  $('btnSubmit').classList.toggle('hidden', i !== QS.length-1);
+  $('qGrid').innerHTML = QS.map((_, j) =>
+    `<button class="${S.ans[j]>=0?'done':''} ${j===i?'cur':''}" data-j="${j}">${j+1}</button>`).join('');
+  document.querySelectorAll('#qGrid button').forEach(b => b.onclick = () => { S.idx = +b.dataset.j; persist(); renderQ(); });
+}
+$('btnPrev').onclick = () => { if(S.idx>0){ S.idx--; persist(); renderQ(); } };
+$('btnNext').onclick = () => { if(S.idx<QS.length-1){ S.idx++; persist(); renderQ(); } };
+$('btnSubmit').onclick = $('btnFinishEarly').onclick = submitQuiz;
+
+function submitQuiz(){
+  const kosong = QS.length - answeredCount();
+  const msg = kosong > 0
+    ? `Masih ada ${kosong} soal yang belum dijawab. Kumpulkan sekarang? Kuis tidak dapat diulang.`
+    : 'Kumpulkan jawaban sekarang? Kuis tidak dapat diulang.';
+  if(!confirm(msg)) return;
+  let benar = 0;
+  QS.forEach((q,i) => { if(S.ans[i] >= 0 && S.perm[i][S.ans[i]] === 0) benar++; });
+  S.benar = benar;
+  S.skor = Math.round(benar / QS.length * 100);
+  S.selesai = new Date().toLocaleString('id-ID', {dateStyle:'long', timeStyle:'short'});
+  S.done = true;
+  persist();
+  showResult(false);
+}
+
+/* ================= HASIL ================= */
+function predikat(s){
+  if(s >= 85) return 'Sangat Baik';
+  if(s >= 70) return 'Baik';
+  if(s >= 55) return 'Cukup';
+  return 'Perlu Belajar Lagi';
+}
+function showResult(returning){
+  show('result');
+  const kosong = S.ans.filter(a => a < 0).length;
+  const salah = QS.length - S.benar - kosong;
+  $('rScore').textContent = S.skor;
+  $('rNama').textContent = S.nama;
+  $('rNim').textContent = S.nim;
+  $('rProdi').textContent = S.prodi;
+  $('rWaktu').textContent = S.selesai;
+  $('rPred').textContent = predikat(S.skor);
+  $('rBenar').textContent = '✔ Benar: ' + S.benar;
+  $('rSalah').textContent = '✘ Salah: ' + salah;
+  $('rKosong').textContent = '— Kosong: ' + kosong;
+  const bn = $('resBanner');
+  if(returning){
+    bn.textContent = 'NIM ' + S.nim + ' sudah pernah mengerjakan kuis ini (satu kali percobaan). Berikut hasil yang tersimpan.';
+    bn.classList.remove('hidden');
+  } else bn.classList.add('hidden');
+
+  $('review').innerHTML = QS.map((q,i) => {
+    const p = S.perm[i], a = S.ans[i];
+    const rightK = p.indexOf(0);
+    const status = a < 0 ? 'nil' : (a === rightK ? 'ok' : 'bad');
+    const label = a < 0 ? 'Tidak dijawab' : (a === rightK ? 'Benar' : 'Salah');
+    const opts = p.map((src,k) => {
+      let cls = 'plain', tag = '';
+      if(k === rightK){ cls = 'right'; tag = ' ✔ (jawaban benar)'; }
+      else if(k === a){ cls = 'wrong'; tag = ' ✘ (jawaban Anda)'; }
+      if(k === rightK && k === a) tag = ' ✔ (jawaban Anda – benar)';
+      return `<div class="a ${cls}"><b>${LET[k]}.</b> ${esc(q.o[src])}${tag}</div>`;
+    }).join('');
+    return `<div class="rv ${status}">
+      <div class="t">${i+1}. ${esc(q.q)} <small style="color:var(--mut);font-weight:500">— ${label}</small></div>
+      ${opts}
+      <div class="exp"><b>Pembahasan:</b> ${esc(q.e)}</div></div>`;
+  }).join('');
+}
+
+/* ================= SIMPAN PDF ================= */
+$('btnPdf').onclick = () => {
+  const old = document.title;
+  const bersih = s => s.replace(/[^A-Za-z0-9]+/g,'_');
+  document.title = 'Hasil_Kuis_P6_' + bersih(S.nim) + '_' + bersih(S.nama);
+  const restore = () => { document.title = old; window.removeEventListener('afterprint', restore); };
+  window.addEventListener('afterprint', restore);
+  window.print();
+};
+</script>
+</body>
+</html>
